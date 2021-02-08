@@ -97,7 +97,13 @@ class _AbstractTransport(object):
         try:
             self.sock.settimeout(None)
             self.sock.setsockopt(SOL_TCP, socket.TCP_NODELAY, 1)
-            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+
+            # Forcibly enable TCP keepalive. Settings are backported from py-ampq 2.x and set forcibly to override node
+            # settings as we currently don't set the sysctl's node-wide.
+            self.sock.setsockopt(SOL_TCP, socket.TCP_KEEPIDLE, 60)   # How long to wait before starting keepalive
+            self.sock.setsockopt(SOL_TCP, socket.TCP_KEEPINTVL, 10)  # How often to probe after starting keepalive
+            self.sock.setsockopt(SOL_TCP, socket.TCP_KEEPCNT, 9)     # How many probes count as "dead"
+            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1) # Turn on Keepalive
 
             self._setup_transport()
 

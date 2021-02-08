@@ -20,3 +20,5 @@ Documentation/
 .project
 .pydevproject
 .coverage
+.idea
+venv
